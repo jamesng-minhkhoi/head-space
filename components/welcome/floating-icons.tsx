@@ -1,5 +1,5 @@
 // Floating Icons Component with Ambient Animation
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ViewStyle } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     withRepeat,
@@ -9,21 +9,35 @@ import Animated, {
     FadeIn,
 } from 'react-native-reanimated';
 import { SymbolView } from 'expo-symbols';
-import { Colors } from '@/constants/colors';
-import { Duration, StaggerDelay, WelcomeIntroDelays } from '@/constants/animations';
+import { StaggerDelay, WelcomeIntroDelays } from '@/constants/animations';
+
+// Icon position type
+interface IconPosition {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+}
 
 // Icon config with position and animation timing
-const floatingIconsConfig = [
-    { id: 'cloud', symbol: 'cloud.rain', color: '#87CEEB', position: { top: '10%', left: '5%' }, floatDuration: 5000, rotateDuration: 7000 },
-    { id: 'heart', symbol: 'heart.fill', color: '#FF6B6B', position: { top: '15%', right: '10%' }, floatDuration: 4500, rotateDuration: 6000 },
-    { id: 'star', symbol: 'star.fill', color: '#FFD700', position: { top: '35%', left: '8%' }, floatDuration: 6000, rotateDuration: 5500 },
-    { id: 'moon', symbol: 'moon.fill', color: '#C9B1FF', position: { top: '40%', right: '5%' }, floatDuration: 5500, rotateDuration: 6500 },
-    { id: 'sun', symbol: 'sun.max.fill', color: '#FFA500', position: { bottom: '55%', left: '12%' }, floatDuration: 4000, rotateDuration: 8000 },
-    { id: 'sparkle', symbol: 'sparkle', color: '#FFE4B5', position: { bottom: '50%', right: '15%' }, floatDuration: 4800, rotateDuration: 5000 },
-];
+const floatingIconsConfig: Array<{
+    id: string;
+    symbol: any; // SF Symbol name
+    color: string;
+    position: IconPosition;
+    floatDuration: number;
+    rotateDuration: number;
+}> = [
+        { id: 'cloud', symbol: 'cloud.rain', color: '#87CEEB', position: { top: 40, left: 20 }, floatDuration: 5000, rotateDuration: 7000 },
+        { id: 'heart', symbol: 'heart.fill', color: '#FF6B6B', position: { top: 60, right: 40 }, floatDuration: 4500, rotateDuration: 6000 },
+        { id: 'star', symbol: 'star.fill', color: '#FFD700', position: { top: 140, left: 32 }, floatDuration: 6000, rotateDuration: 5500 },
+        { id: 'moon', symbol: 'moon.fill', color: '#C9B1FF', position: { top: 160, right: 20 }, floatDuration: 5500, rotateDuration: 6500 },
+        { id: 'sun', symbol: 'sun.max.fill', color: '#FFA500', position: { top: 220, left: 48 }, floatDuration: 4000, rotateDuration: 8000 },
+        { id: 'sparkle', symbol: 'sparkle', color: '#FFE4B5', position: { top: 200, right: 60 }, floatDuration: 4800, rotateDuration: 5000 },
+    ];
 
 interface FloatingIconProps {
-    symbol: string;
+    symbol: any;
     color: string;
     floatDuration: number;
     rotateDuration: number;
@@ -79,9 +93,9 @@ export function FloatingIcons() {
     return (
         <View style={styles.container} pointerEvents="none">
             {floatingIconsConfig.map((icon, index) => (
-                <Animated.View
+                <View
                     key={icon.id}
-                    style={[styles.iconWrapper, icon.position]}
+                    style={[styles.iconWrapper, icon.position as ViewStyle]}
                 >
                     <FloatingIcon
                         symbol={icon.symbol}
@@ -90,7 +104,7 @@ export function FloatingIcons() {
                         rotateDuration={icon.rotateDuration}
                         index={index}
                     />
-                </Animated.View>
+                </View>
             ))}
         </View>
     );

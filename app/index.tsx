@@ -176,7 +176,6 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 48,
         borderTopRightRadius: 56,  // Slightly more curved on right for skew effect
         borderCurve: 'continuous',
-        paddingHorizontal: Spacing.screenHorizontal,
         paddingTop: Spacing.welcomeContentPaddingTop + 8,
         // Subtle shadow for depth
         boxShadow: '0 -8px 30px rgba(0, 0, 0, 0.08)',

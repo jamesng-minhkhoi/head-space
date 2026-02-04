@@ -9,7 +9,7 @@ import { PaywallIntroDelays, StaggerDelay } from '@/constants/animations';
 
 interface TimelineItem {
     id: string;
-    icon: string;
+    icon: any; // SF Symbol name
     iconColor: string;
     iconBackground: string;
     title: string;
