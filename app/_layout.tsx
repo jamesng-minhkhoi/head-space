@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+// Root Layout - Navigation Configuration for Calm Transitions
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -6,17 +6,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
-
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [fontsLoaded] = useFonts({
     // Regular weights
     'HankenGrotesk-ExtraLight': require('../assets/fonts/Hanken_Grotesk/static/HankenGrotesk-ExtraLight.ttf'),
@@ -51,12 +44,33 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+    <>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: 'fade',
+          animationDuration: 400,
+          gestureEnabled: true,
+        }}
+      >
+        {/* Welcome Screen - Main entry point */}
+        <Stack.Screen name="index" />
+
+        {/* Paywall Screen - Modal sheet presentation */}
+        <Stack.Screen
+          name="paywall"
+          options={{
+            presentation: 'formSheet',
+            sheetGrabberVisible: true,
+            sheetAllowedDetents: [1.0],
+            gestureEnabled: true,
+          }}
+        />
+
+        {/* Hide default tabs folder from navigation */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+      <StatusBar style="dark" />
+    </>
   );
 }
