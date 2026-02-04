@@ -108,10 +108,9 @@ const styles = StyleSheet.create({
         borderCurve: 'continuous',
     },
     segment: {
-        flex: 1,
+        width: 100, // Fixed width for consistent pill shape
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: Spacing.toggleItemPaddingHorizontal,
         zIndex: 1,
     },
     segmentPressed: {

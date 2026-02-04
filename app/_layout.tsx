@@ -56,13 +56,12 @@ export default function RootLayout() {
         {/* Welcome Screen - Main entry point */}
         <Stack.Screen name="index" />
 
-        {/* Paywall Screen - Modal sheet presentation */}
+        {/* Paywall Screen - Full screen card presentation */}
         <Stack.Screen
           name="paywall"
           options={{
-            presentation: 'formSheet',
-            sheetGrabberVisible: true,
-            sheetAllowedDetents: [1.0],
+            presentation: 'card',
+            animation: 'slide_from_bottom',
             gestureEnabled: true,
           }}
         />

@@ -81,80 +81,94 @@ export default function WelcomeScreen() {
                 </PhoneFrame>
             </View>
 
-            {/* White Content Card - Slides up from bottom with curved top, slight right skew */}
+            {/* Curved White Card - Position absolute, visual layer only */}
             <Animated.View
                 entering={SlideInDown
                     .delay(ANIMATION_DELAYS.whiteCard)
                     .duration(700)
                     .easing(Easing.out(Easing.cubic))
                 }
-                style={[
-                    styles.contentSection,
-                    { paddingBottom: insets.bottom + Spacing.welcomeButtonBottomMargin }
-                ]}
-            >
-                {/* Title - fades in after card settles */}
-                <Animated.Text
-                    entering={FadeIn.delay(ANIMATION_DELAYS.title).duration(400).easing(Easing.out(Easing.ease))}
-                    style={styles.title}
-                >
-                    Welcome to Headspace
-                </Animated.Text>
+                style={styles.curvedCard}
+                pointerEvents="none"
+            />
 
-                {/* Subtitle */}
-                <Animated.Text
-                    entering={FadeIn.delay(ANIMATION_DELAYS.subtitle).duration(400).easing(Easing.out(Easing.ease))}
-                    style={styles.subtitle}
-                >
-                    Support for all of life's moments
-                </Animated.Text>
-
-                {/* Checkbox with Terms */}
-                <Animated.View
-                    entering={FadeInUp.delay(ANIMATION_DELAYS.checkbox).duration(400).easing(Easing.out(Easing.ease))}
-                    style={styles.checkboxContainer}
-                >
-                    <Checkbox
-                        checked={termsAccepted}
-                        onToggle={setTermsAccepted}
-                        label={
-                            <Text style={styles.checkboxLabel}>
-                                By checking this box, I agree to the{' '}
-                                <Text style={styles.link} onPress={handleTermsPress}>
-                                    Terms & Conditions
-                                </Text>
-                                {' '}and{' '}
-                                <Text style={styles.link} onPress={handlePrivacyPress}>
-                                    Privacy Policy
-                                </Text>
-                            </Text>
-                        }
-                    />
-                </Animated.View>
-
-                {/* Buttons - slide up with stagger */}
-                <View style={styles.buttonContainer}>
-                    <Animated.View
-                        entering={FadeInUp.delay(ANIMATION_DELAYS.primaryButton).duration(400).easing(Easing.out(Easing.ease))}
+            {/* Content Layer - Separate from card, properly centered */}
+            <View style={[
+                styles.contentLayer,
+                {
+                    paddingBottom: insets.bottom + Spacing.welcomeButtonBottomMargin,
+                    paddingLeft: insets.left + Spacing.screenHorizontal,
+                    paddingRight: insets.right + Spacing.screenHorizontal,
+                }
+            ]}>
+                {/* Top Content - Title & Subtitle, positioned relative to curve */}
+                <View style={styles.topContent}>
+                    {/* Title */}
+                    <Animated.Text
+                        entering={FadeIn.delay(ANIMATION_DELAYS.title).duration(400).easing(Easing.out(Easing.ease))}
+                        style={styles.title}
                     >
-                        <Button
-                            variant="primary"
-                            onPress={handleCreateAccount}
-                            disabled={!termsAccepted}
-                        >
-                            Create an account
-                        </Button>
-                    </Animated.View>
+                        Welcome to Headspace
+                    </Animated.Text>
 
-                    <Animated.View
-                        entering={FadeInUp.delay(ANIMATION_DELAYS.secondaryButton).duration(400).easing(Easing.out(Easing.ease))}
+                    {/* Subtitle */}
+                    <Animated.Text
+                        entering={FadeIn.delay(ANIMATION_DELAYS.subtitle).duration(400).easing(Easing.out(Easing.ease))}
+                        style={styles.subtitle}
                     >
-                        <Button variant="secondary" onPress={handleLogin}>
-                            Log in
-                        </Button>
-                    </Animated.View>
+                        Support for all of life's moments
+                    </Animated.Text>
                 </View>
-            </Animated.View>
+
+                {/* Bottom Content - Checkbox & Buttons, positioned at bottom */}
+                <View style={styles.bottomContent}>
+                    {/* Checkbox with Terms */}
+                    <Animated.View
+                        entering={FadeInUp.delay(ANIMATION_DELAYS.checkbox).duration(400).easing(Easing.out(Easing.ease))}
+                        style={styles.checkboxContainer}
+                    >
+                        <Checkbox
+                            checked={termsAccepted}
+                            onToggle={setTermsAccepted}
+                            label={
+                                <Text style={styles.checkboxLabel}>
+                                    By checking this box, I agree to the{' '}
+                                    <Text style={styles.link} onPress={handleTermsPress}>
+                                        Terms & Conditions
+                                    </Text>
+                                    {' '}and{' '}
+                                    <Text style={styles.link} onPress={handlePrivacyPress}>
+                                        Privacy Policy
+                                    </Text>
+                                </Text>
+                            }
+                        />
+                    </Animated.View>
+
+                    {/* Buttons */}
+                    <View style={styles.buttonContainer}>
+                        <Animated.View
+                            entering={FadeInUp.delay(ANIMATION_DELAYS.primaryButton).duration(400).easing(Easing.out(Easing.ease))}
+                        >
+                            <Button
+                                variant="primary"
+                                onPress={handleCreateAccount}
+                                disabled={!termsAccepted}
+                            >
+                                Create an account
+                            </Button>
+                        </Animated.View>
+
+                        <Animated.View
+                            entering={FadeInUp.delay(ANIMATION_DELAYS.secondaryButton).duration(400).easing(Easing.out(Easing.ease))}
+                        >
+                            <Button variant="secondary" onPress={handleLogin}>
+                                Log in
+                            </Button>
+                        </Animated.View>
+                    </View>
+                </View>
+            </View>
         </View>
     );
 }
@@ -165,44 +179,54 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.yellowBackground,
     },
     heroSection: {
-        height: '50%', // Reduced to give more space to white card
+        height: '45%', // Adjusted for better balance
         alignItems: 'center',
         justifyContent: 'center',
+        zIndex: 1,
     },
-    contentSection: {
-        flex: 1,
+    curvedCard: {
+        // This is a HUGE circle positioned absolute - visual layer only
+        position: 'absolute',
+        bottom: -320, // Push down so only top arc is visible (higher = more arc visible)
+        left: '50%',
+        width: 900, // Very wide
+        height: 900, // Same as width = perfect circle
+        marginLeft: -450, // Center it (half of width)
         backgroundColor: Colors.white,
-        // Very curved top corners with asymmetric feel (right slightly more)
-        borderTopLeftRadius: 48,
-        borderTopRightRadius: 56,  // Slightly more curved on right for skew effect
-        borderCurve: 'continuous',
-        paddingTop: Spacing.welcomeContentPaddingTop + 8,
-        // Subtle shadow for depth
-        boxShadow: '0 -8px 30px rgba(0, 0, 0, 0.08)',
-        // Slight rotation for organic/skew feel
-        transform: [{ rotate: '-0.5deg' }],
-        // Compensate for rotation with extra width
-        marginHorizontal: -4,
-        paddingHorizontal: Spacing.screenHorizontal + 4,
+        borderRadius: 450, // Half of width = perfect circle
+        transform: [{ translateX: 15 }], // Slight offset for skew effect
+        zIndex: 2,
+    },
+    contentLayer: {
+        // Content layer - positioned relative to where curve appears
+        position: 'absolute',
+        top: '45%', // Align with where the curved card arc starts
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 3,
+        paddingTop: 40, // Space from top of content area (below the curve arc)
+        justifyContent: 'space-between', // Push top and bottom content apart
+    },
+    topContent: {
+        // Title and subtitle - stays at top of content area
+    },
+    bottomContent: {
+        // Checkbox and buttons - pushed to bottom
     },
     title: {
         ...Typography.welcomeTitle,
         color: Colors.textPrimary,
         textAlign: 'center',
-        // Counter-rotate to keep text straight
-        transform: [{ rotate: '0.5deg' }],
     },
     subtitle: {
         ...Typography.welcomeSubtitle,
         color: Colors.textSecondary,
         textAlign: 'center',
         marginTop: Spacing.welcomeTitleToSubtitle,
-        transform: [{ rotate: '0.5deg' }],
     },
     checkboxContainer: {
-        marginTop: Spacing.welcomeSubtitleToCheckbox,
         paddingHorizontal: 8,
-        transform: [{ rotate: '0.5deg' }],
     },
     checkboxLabel: {
         ...Typography.checkboxLabel,
@@ -215,6 +239,5 @@ const styles = StyleSheet.create({
     buttonContainer: {
         marginTop: Spacing.welcomeCheckboxToButtons,
         gap: Spacing.welcomeButtonGap,
-        transform: [{ rotate: '0.5deg' }],
     },
 });

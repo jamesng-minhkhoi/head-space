@@ -1,39 +1,33 @@
 // Sunset Header Component with Gradient and Sun Character
-import { View, StyleSheet, Pressable } from 'react-native';
-import Animated, { FadeIn, Easing } from 'react-native-reanimated';
+import { View, StyleSheet, Pressable, Dimensions } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { SymbolView } from 'expo-symbols';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/colors';
-import { Spacing } from '@/constants/spacing';
 import { PaywallIntroDelays } from '@/constants/animations';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface SunsetHeaderProps {
     onClose: () => void;
 }
 
-// Sun character for paywall (simpler version of Character)
+// Sun character with face and sparkles
 function SunCharacter() {
     return (
         <View style={styles.sunContainer}>
+            {/* Main sun circle */}
             <View style={styles.sun}>
-                {/* Simple face */}
+                {/* Sparkle decorations */}
+                <View style={styles.sparkle} />
+
+                {/* Closed eyes (curved lines) */}
                 <View style={styles.sunFace}>
-                    <View style={styles.sunEye} />
-                    <View style={styles.sunEye} />
+                    <View style={styles.sunEyeCurved} />
+                    <View style={styles.sunEyeCurved} />
                 </View>
             </View>
-
-            {/* Sun rays */}
-            {[0, 45, 90, 135, 180, 225, 270, 315].map((rotation) => (
-                <View
-                    key={rotation}
-                    style={[
-                        styles.sunRay,
-                        { transform: [{ rotate: `${rotation}deg` }, { translateY: -50 }] },
-                    ]}
-                />
-            ))}
         </View>
     );
 }
@@ -47,16 +41,19 @@ export function SunsetHeader({ onClose }: SunsetHeaderProps) {
     };
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
-            {/* Gradient layers (simulated since real gradients need New Arch) */}
-            <View style={styles.gradientTop} />
-            <View style={styles.gradientMiddle} />
-            <View style={styles.gradientBottom} />
+        <View style={[styles.container, { paddingTop: insets.top }]}>
+            {/* Orange/yellow gradient background layers */}
+            <View style={styles.gradientBase} />
+            <View style={styles.gradientYellow} />
+            <View style={styles.gradientOrange} />
 
-            {/* Close button */}
+            {/* Cloud/wave decoration at bottom */}
+            <View style={styles.waveDecoration} />
+
+            {/* Close button - top right */}
             <Animated.View
                 entering={FadeIn.delay(PaywallIntroDelays.closeButton).duration(300)}
-                style={styles.closeButtonContainer}
+                style={[styles.closeButtonContainer, { top: insets.top + 12 }]}
             >
                 <Pressable
                     onPress={handleClose}
@@ -67,14 +64,14 @@ export function SunsetHeader({ onClose }: SunsetHeaderProps) {
                 >
                     <SymbolView
                         name="xmark"
-                        tintColor={Colors.white}
-                        size={18}
-                        weight="medium"
+                        tintColor={Colors.textPrimary}
+                        size={22}
+                        weight="semibold"
                     />
                 </Pressable>
             </Animated.View>
 
-            {/* Sun character */}
+            {/* Sun character - centered */}
             <Animated.View
                 entering={FadeIn.delay(PaywallIntroDelays.sunCharacter).duration(500)}
                 style={styles.sunWrapper}
@@ -87,86 +84,98 @@ export function SunsetHeader({ onClose }: SunsetHeaderProps) {
 
 const styles = StyleSheet.create({
     container: {
-        height: Spacing.paywallHeaderHeight,
+        height: 200,
         position: 'relative',
         overflow: 'hidden',
     },
-    // Gradient simulation layers
-    gradientTop: {
+    // Gradient layers
+    gradientBase: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: Colors.sunsetTop,
+        backgroundColor: '#F5A623', // Deep orange/yellow
     },
-    gradientMiddle: {
+    gradientYellow: {
         position: 'absolute',
         left: 0,
         right: 0,
-        top: '40%',
-        bottom: 0,
-        backgroundColor: Colors.sunsetYellow,
+        top: 0,
+        height: '60%',
+        backgroundColor: '#FFAA00', // Yellow-orange
     },
-    gradientBottom: {
+    gradientOrange: {
         position: 'absolute',
         left: 0,
         right: 0,
-        top: '70%',
         bottom: 0,
-        backgroundColor: Colors.sunsetOrange,
+        height: '50%',
+        backgroundColor: '#FF8C00', // Orange
+    },
+    waveDecoration: {
+        position: 'absolute',
+        bottom: 40,
+        left: -20,
+        right: -20,
+        height: 60,
+        backgroundColor: 'rgba(255, 200, 100, 0.4)',
+        borderRadius: 100,
     },
     closeButtonContainer: {
         position: 'absolute',
-        top: 56,
         right: 16,
         zIndex: 10,
     },
     closeButton: {
         width: 32,
         height: 32,
-        borderRadius: 16,
-        backgroundColor: Colors.closeBackground,
         alignItems: 'center',
         justifyContent: 'center',
     },
     closeButtonPressed: {
-        backgroundColor: Colors.closeBackgroundPressed,
-        transform: [{ scale: 0.9 }],
+        opacity: 0.5,
     },
     sunWrapper: {
         position: 'absolute',
-        bottom: 20,
+        top: 40,
         alignSelf: 'center',
+        zIndex: 5,
     },
     sunContainer: {
-        width: 80,
-        height: 80,
         alignItems: 'center',
         justifyContent: 'center',
     },
     sun: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
         backgroundColor: Colors.orangeCharacter,
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 2,
+        // Subtle shadow
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+    },
+    sparkle: {
+        position: 'absolute',
+        top: 15,
+        right: 20,
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#FFE4B5',
     },
     sunFace: {
         flexDirection: 'row',
-        gap: 12,
-        marginTop: -4,
+        gap: 20,
+        marginTop: 5,
     },
-    sunEye: {
-        width: 16,
-        height: 3,
-        backgroundColor: Colors.textPrimary,
-        borderRadius: 2,
-    },
-    sunRay: {
-        position: 'absolute',
-        width: 3,
-        height: 12,
-        backgroundColor: Colors.sunsetDeep,
-        borderRadius: 2,
-        zIndex: 1,
+    sunEyeCurved: {
+        width: 20,
+        height: 10,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        backgroundColor: 'transparent',
+        borderTopWidth: 3,
+        borderLeftWidth: 3,
+        borderRightWidth: 3,
+        borderColor: Colors.textPrimary,
+        transform: [{ rotate: '180deg' }],
     },
 });

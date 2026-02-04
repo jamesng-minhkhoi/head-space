@@ -1,8 +1,18 @@
 // Paywall Screen - Trial/Subscription flow
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import Animated, { FadeIn, FadeInUp, FadeOut, Easing } from 'react-native-reanimated';
+import { useState, useEffect } from 'react';
+import Animated, {
+    FadeIn,
+    FadeInUp,
+    FadeOut,
+    useSharedValue,
+    useAnimatedStyle,
+    withTiming,
+    withDelay,
+    withSequence,
+    interpolateColor
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/button';
 import { Toggle, type BillingCycle } from '@/components/ui/toggle';
@@ -23,6 +33,32 @@ export default function PaywallScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const [billingCycle, setBillingCycle] = useState<BillingCycle>('annual');
+    const colorAnim = useSharedValue(0);
+
+    useEffect(() => {
+        if (billingCycle === 'annual') {
+            // Flash green to highlight savings when switching to annual
+            // 0 -> 1 (green) -> wait -> 0 (normal)
+            colorAnim.value = 0; // Reset first
+            colorAnim.value = withSequence(
+                withTiming(1, { duration: 300 }),
+                withDelay(500, withTiming(0, { duration: 300 }))
+            );
+        } else {
+            // Reset to normal deeply immediately if switching to monthly
+            colorAnim.value = withTiming(0, { duration: 200 });
+        }
+    }, [billingCycle]);
+
+    const animatedPriceStyle = useAnimatedStyle(() => {
+        return {
+            color: interpolateColor(
+                colorAnim.value,
+                [0, 1],
+                [Colors.textSecondary, '#4CAF50'] // Normal -> Green
+            ),
+        };
+    });
 
     const handleClose = () => {
         router.back();
@@ -45,15 +81,11 @@ export default function PaywallScreen() {
             {/* Sunset Header with close button */}
             <SunsetHeader onClose={handleClose} />
 
-            {/* Content */}
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={[
-                    styles.scrollContent,
-                    { paddingBottom: insets.bottom + Spacing.paywallButtonBottomMargin },
-                ]}
-                showsVerticalScrollIndicator={false}
-            >
+            {/* Curved white card - visual layer */}
+            <View style={styles.curvedCard} />
+
+            {/* Main Content - positioned on top of curved card */}
+            <View style={styles.contentContainer}>
                 {/* Title */}
                 <Animated.Text
                     entering={FadeIn.delay(PaywallIntroDelays.title).duration(400)}
@@ -64,20 +96,22 @@ export default function PaywallScreen() {
 
                 {/* Pricing text with animation on toggle change */}
                 <Animated.View
-                    key={billingCycle}
                     entering={FadeIn.duration(Duration.stateChange).easing(CalmEasing.enter)}
-                    exiting={FadeOut.duration(200)}
                     style={styles.pricingContainer}
                 >
-                    <Animated.Text
-                        entering={FadeIn.delay(PaywallIntroDelays.pricingText).duration(400)}
-                        style={styles.pricingText}
-                    >
-                        First 14 days free, then {currentPricing.total}{' '}
-                        <Text style={styles.pricingPeriod}>
-                            ({currentPricing.perMonth})
-                        </Text>
-                    </Animated.Text>
+                    <Text style={styles.pricingText}>
+                        First 14 days free, then{' '}
+                        <Animated.Text
+                            key={billingCycle}
+                            style={animatedPriceStyle}
+                            entering={FadeIn.duration(400)}
+                        >
+                            {currentPricing.total}{' '}
+                            <Animated.Text style={[styles.pricingPeriod, animatedPriceStyle]}>
+                                ({currentPricing.perMonth})
+                            </Animated.Text>
+                        </Animated.Text>
+                    </Text>
                 </Animated.View>
 
                 {/* Billing Toggle */}
@@ -111,23 +145,21 @@ export default function PaywallScreen() {
                         )}
                     </Pressable>
                 </Animated.View>
+            </View>
 
-                {/* CTA Button */}
+            {/* Bottom CTA - Fixed at bottom */}
+            <View style={[
+                styles.bottomContainer,
+                { paddingBottom: insets.bottom + 16 }
+            ]}>
                 <Animated.View
                     entering={FadeInUp.delay(PaywallIntroDelays.ctaButton).duration(400)}
-                    style={styles.ctaContainer}
                 >
                     <Button variant="primary" onPress={handleStartTrial}>
                         Start my free trial
                     </Button>
                 </Animated.View>
-
-                {/* Terms footer */}
-                <Text style={styles.termsText}>
-                    By tapping "Start my free trial", you agree to our{' '}
-                    <Text style={styles.termsLink}>Terms of Service</Text>
-                </Text>
-            </ScrollView>
+            </View>
         </View>
     );
 }
@@ -137,12 +169,23 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.white,
     },
-    scrollView: {
-        flex: 1,
+    curvedCard: {
+        position: 'absolute',
+        top: 120, // Position below the sun character
+        left: '50%',
+        width: 900,
+        height: 900,
+        marginLeft: -450,
+        backgroundColor: Colors.white,
+        borderRadius: 450,
+        transform: [{ translateX: 10 }],
+        zIndex: 1,
     },
-    scrollContent: {
+    contentContainer: {
+        flex: 1,
         paddingHorizontal: Spacing.screenHorizontal,
-        paddingTop: Spacing.paywallContentPaddingTop,
+        paddingTop: 40, // Space below the curved header
+        zIndex: 10, // Above the curved card
     },
     title: {
         ...Typography.paywallTitle,
@@ -150,7 +193,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     pricingContainer: {
-        marginTop: Spacing.paywallTitleToSubtitle,
+        marginTop: 12,
     },
     pricingText: {
         ...Typography.paywallSubtitle,
@@ -161,13 +204,14 @@ const styles = StyleSheet.create({
         color: Colors.textSecondary,
     },
     toggleContainer: {
-        marginTop: Spacing.paywallSubtitleToToggle,
+        marginTop: 24,
+        alignItems: 'center',
     },
     timelineContainer: {
-        marginTop: Spacing.paywallToggleToTimeline,
+        marginTop: 32,
     },
     restoreLinkContainer: {
-        marginTop: Spacing.paywallRestoreLinkMarginTop,
+        marginTop: 24,
         alignItems: 'center',
     },
     restoreLink: {
@@ -178,16 +222,10 @@ const styles = StyleSheet.create({
         color: Colors.bluePressed,
         textDecorationLine: 'underline',
     },
-    ctaContainer: {
-        marginTop: 24,
-    },
-    termsText: {
-        ...Typography.checkboxLabel,
-        color: Colors.textSecondary,
-        textAlign: 'center',
-        marginTop: 16,
-    },
-    termsLink: {
-        color: Colors.blueLink,
+    bottomContainer: {
+        paddingHorizontal: Spacing.screenHorizontal,
+        paddingTop: 16,
+        backgroundColor: Colors.white,
+        zIndex: 10, // Above the curved card
     },
 });
