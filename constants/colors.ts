@@ -2,11 +2,11 @@
 
 export const Colors = {
     // Welcome Screen Background
-    yellowBackground: '#FFCE00', // Yellow 500
+    yellowBackground: '#FFB800', // Yellow 500
 
     // Paywall Screen - Sunset Gradient
-    sunsetTop: '#FFCE00',    // Yellow 500
-    sunsetYellow: '#FFCE00', // Yellow 500
+    sunsetTop: '#FFB800',    // Yellow 500
+    sunsetYellow: '#FFB800', // Yellow 500
     sunsetOrange: '#FF7E1D', // Orange 500
     sunsetDeep: '#E1894B',   // Orange 700
 

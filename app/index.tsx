@@ -64,18 +64,18 @@ const ICON_SIZES = {
 const ANIMATION_DELAYS = {
     // Phase 1: Orange bg + illustration (already visible)
     heroVisible: 0,
-    floatingIcons: 200,
-    character: 300,
+    floatingIcons: 400,
+    character: 550,
 
     // Phase 2: White card slides up from bottom
-    whiteCard: 600,
+    whiteCard: 900,
 
     // Phase 3: Content fades in after card settles
-    title: 1000,
-    subtitle: 1100,
-    checkbox: 1200,
-    primaryButton: 1300,
-    secondaryButton: 1400,
+    title: 1300,
+    subtitle: 1450,
+    checkbox: 1600,
+    primaryButton: 1750,
+    secondaryButton: 1900,
 };
 
 type FloatingSvgConfig = {
@@ -163,18 +163,31 @@ export default function WelcomeScreen() {
     const noteStyle = useFloatingSvgStyle({ floatDuration: 6000, rotateDuration: 5200, scale: 1 });
 
     const iconEnter = (index: number) =>
-        FadeIn.delay(ANIMATION_DELAYS.floatingIcons + index * StaggerDelay.floatingIcon).duration(400);
+        FadeIn.delay(ANIMATION_DELAYS.floatingIcons + index * (StaggerDelay.floatingIcon + 40)).duration(550);
 
     const characterSlideX = useSharedValue(-60);
+    const characterFloatY = useSharedValue(0);
     useEffect(() => {
         characterSlideX.value = withDelay(
             ANIMATION_DELAYS.character,
-            withTiming(0, { duration: 550, easing: Easing.out(Easing.cubic) })
+            withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) })
         );
-    }, [characterSlideX]);
+        characterFloatY.value = withDelay(
+            ANIMATION_DELAYS.character + 200,
+            withRepeat(
+                withTiming(-10, { duration: 3200, easing: Easing.inOut(Easing.ease) }),
+                -1,
+                true
+            )
+        );
+    }, [characterFloatY, characterSlideX]);
 
     const characterSlideStyle = useAnimatedStyle(() => ({
-        transform: [{ translateX: characterSlideX.value }, { rotate: '30deg' }],
+        transform: [
+            { translateX: characterSlideX.value },
+            { translateY: characterFloatY.value },
+            { rotate: '30deg' },
+        ],
     }));
 
     return (
@@ -190,18 +203,20 @@ export default function WelcomeScreen() {
                             style={[
                                 styles.icon,
                                 { top: FRAME_TOP - 8, left: FRAME_LEFT - ICON_GAP - ICON_SIZES.sparkle },
+                                sparkleTopLeftStyle,
                             ]}
                         >
-                            <AnimatedSparkle width={ICON_SIZES.sparkle} height={ICON_SIZES.sparkle} style={sparkleTopLeftStyle} />
+                            <AnimatedSparkle width={ICON_SIZES.sparkle} height={ICON_SIZES.sparkle} />
                         </Animated.View>
                         <Animated.View
                             entering={iconEnter(1)}
                             style={[
                                 styles.icon,
                                 { top: FRAME_TOP + 6, left: FRAME_LEFT - ICON_GAP - ICON_SIZES.flower },
+                                flowerStyle,
                             ]}
                         >
-                            <AnimatedFlower width={ICON_SIZES.flower} height={ICON_SIZES.flower} style={flowerStyle} />
+                            <AnimatedFlower width={ICON_SIZES.flower} height={ICON_SIZES.flower} />
                         </Animated.View>
 
                         {/* Left Center Area */}
@@ -210,9 +225,10 @@ export default function WelcomeScreen() {
                             style={[
                                 styles.icon,
                                 { top: FRAME_TOP + 78, left: FRAME_LEFT - ICON_GAP - ICON_SIZES.cloud },
+                                cloudStyle,
                             ]}
                         >
-                            <AnimatedCloudRain width={ICON_SIZES.cloud} height={54} style={cloudStyle} />
+                            <AnimatedCloudRain width={ICON_SIZES.cloud} height={54} />
                         </Animated.View>
 
                         {/* Bottom Left Area */}
@@ -221,18 +237,20 @@ export default function WelcomeScreen() {
                             style={[
                                 styles.icon,
                                 { top: FRAME_TOP + 150, left: FRAME_LEFT - ICON_GAP - ICON_SIZES.moon },
+                                moonStyle,
                             ]}
                         >
-                            <AnimatedMoon width={ICON_SIZES.moon} height={ICON_SIZES.moon} style={moonStyle} />
+                            <AnimatedMoon width={ICON_SIZES.moon} height={ICON_SIZES.moon} />
                         </Animated.View>
                         <Animated.View
                             entering={iconEnter(4)}
                             style={[
                                 styles.icon,
                                 { top: FRAME_TOP + 198, left: FRAME_LEFT - ICON_GAP - ICON_SIZES.fastForward },
+                                fastForwardStyle,
                             ]}
                         >
-                            <AnimatedFastForward width={ICON_SIZES.fastForward} height={ICON_SIZES.fastForward} style={fastForwardStyle} />
+                            <AnimatedFastForward width={ICON_SIZES.fastForward} height={ICON_SIZES.fastForward} />
                         </Animated.View>
 
                         {/* Top Right Area */}
@@ -241,9 +259,10 @@ export default function WelcomeScreen() {
                             style={[
                                 styles.icon,
                                 { top: FRAME_TOP + 6, left: FRAME_RIGHT + ICON_GAP },
+                                playSparkleStyle,
                             ]}
                         >
-                            <AnimatedPlaySparkle width={ICON_SIZES.playSparkle} height={ICON_SIZES.playSparkle} style={playSparkleStyle} />
+                            <AnimatedPlaySparkle width={ICON_SIZES.playSparkle} height={ICON_SIZES.playSparkle} />
                         </Animated.View>
 
                         {/* Right Center Area */}
@@ -252,9 +271,10 @@ export default function WelcomeScreen() {
                             style={[
                                 styles.icon,
                                 { top: FRAME_TOP + 72, left: FRAME_RIGHT + ICON_GAP },
+                                rainbowStyle,
                             ]}
                         >
-                            <AnimatedRainbow width={ICON_SIZES.rainbow} height={ICON_SIZES.rainbow} style={rainbowStyle} />
+                            <AnimatedRainbow width={ICON_SIZES.rainbow} height={ICON_SIZES.rainbow} />
                         </Animated.View>
 
                         {/* Bottom Right Area */}
@@ -263,27 +283,29 @@ export default function WelcomeScreen() {
                             style={[
                                 styles.icon,
                                 { top: FRAME_TOP + 132, left: FRAME_RIGHT + ICON_GAP },
+                                sparkleMidRightStyle,
                             ]}
                         >
-                            <AnimatedSparkle width={ICON_SIZES.sparkleSmall} height={ICON_SIZES.sparkleSmall} style={sparkleMidRightStyle} />
+                            <AnimatedSparkle width={ICON_SIZES.sparkleSmall} height={ICON_SIZES.sparkleSmall} />
                         </Animated.View>
                         <Animated.View
                             entering={iconEnter(8)}
                             style={[
                                 styles.icon,
                                 { top: FRAME_TOP + 186, left: FRAME_RIGHT + ICON_GAP },
+                                noteStyle,
                             ]}
                         >
-                            <AnimatedNote width={ICON_SIZES.note} height={ICON_SIZES.note} style={noteStyle} />
+                            <AnimatedNote width={ICON_SIZES.note} height={ICON_SIZES.note} />
                         </Animated.View>
                     </View>
 
                     {/* Phone frame with character */}
                     <PhoneFrame style={styles.phoneFrame}>
                         <Animated.View
-                            entering={FadeIn.delay(ANIMATION_DELAYS.character).duration(250)}
-                            style={[styles.characterWrap, characterSlideStyle]}
-                        >
+                        entering={FadeIn.delay(ANIMATION_DELAYS.character).duration(450)}
+                        style={[styles.characterWrap, characterSlideStyle]}
+                    >
                             <Character size={150} />
                         </Animated.View>
                     </PhoneFrame>
@@ -294,7 +316,7 @@ export default function WelcomeScreen() {
             <Animated.View
                 entering={SlideInDown
                     .delay(ANIMATION_DELAYS.whiteCard)
-                    .duration(700)
+                    .duration(900)
                     .easing(Easing.out(Easing.cubic))
                 }
                 style={styles.curvedCard}
@@ -314,7 +336,7 @@ export default function WelcomeScreen() {
                 <View style={styles.topContent}>
                     {/* Title */}
                     <Animated.Text
-                        entering={FadeIn.delay(ANIMATION_DELAYS.title).duration(400).easing(Easing.out(Easing.ease))}
+                        entering={FadeIn.delay(ANIMATION_DELAYS.title).duration(550).easing(Easing.out(Easing.ease))}
                         style={styles.title}
                     >
                         Welcome to Headspace
@@ -322,7 +344,7 @@ export default function WelcomeScreen() {
 
                     {/* Subtitle */}
                     <Animated.Text
-                        entering={FadeIn.delay(ANIMATION_DELAYS.subtitle).duration(400).easing(Easing.out(Easing.ease))}
+                        entering={FadeIn.delay(ANIMATION_DELAYS.subtitle).duration(550).easing(Easing.out(Easing.ease))}
                         style={styles.subtitle}
                     >
                         Support for all of life's moments
@@ -333,7 +355,7 @@ export default function WelcomeScreen() {
                 <View style={styles.bottomContent}>
                     {/* Checkbox with Terms */}
                     <Animated.View
-                        entering={FadeInUp.delay(ANIMATION_DELAYS.checkbox).duration(400).easing(Easing.out(Easing.ease))}
+                        entering={FadeInUp.delay(ANIMATION_DELAYS.checkbox).duration(550).easing(Easing.out(Easing.ease))}
                         style={styles.checkboxContainer}
                     >
                         <Checkbox
@@ -357,7 +379,7 @@ export default function WelcomeScreen() {
                     {/* Buttons */}
                     <View style={styles.buttonContainer}>
                         <Animated.View
-                            entering={FadeInUp.delay(ANIMATION_DELAYS.primaryButton).duration(400).easing(Easing.out(Easing.ease))}
+                            entering={FadeInUp.delay(ANIMATION_DELAYS.primaryButton).duration(550).easing(Easing.out(Easing.ease))}
                         >
                             <Button
                                 variant="primary"
@@ -369,7 +391,7 @@ export default function WelcomeScreen() {
                         </Animated.View>
 
                         <Animated.View
-                            entering={FadeInUp.delay(ANIMATION_DELAYS.secondaryButton).duration(400).easing(Easing.out(Easing.ease))}
+                            entering={FadeInUp.delay(ANIMATION_DELAYS.secondaryButton).duration(550).easing(Easing.out(Easing.ease))}
                         >
                             <Button variant="secondary" onPress={handleLogin}>
                                 Log in

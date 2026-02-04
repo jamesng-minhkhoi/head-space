@@ -1,9 +1,10 @@
 // Orange Character Component with Breathing Animation
 import { View, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
 import Animated, {
     useAnimatedStyle,
+    useSharedValue,
     withRepeat,
-    withSequence,
     withTiming,
     Easing,
 } from 'react-native-reanimated';
@@ -18,26 +19,27 @@ interface CharacterProps {
 }
 
 export function Character({ size = Spacing.characterSize }: CharacterProps) {
+    const scale = useSharedValue(0.95);
+
+    useEffect(() => {
+        const minScale = 0.95;
+        const maxScale = 1.06;
+        const duration = Duration.ambientBreathing * 1.5;
+
+        scale.value = minScale;
+        scale.value = withRepeat(
+            withTiming(maxScale, {
+                duration,
+                easing: Easing.inOut(Easing.sin),
+            }),
+            -1,
+            true
+        );
+    }, [scale]);
+
     // Breathing animation - gentle scale pulse
     const breathingStyle = useAnimatedStyle(() => ({
-        transform: [
-            {
-                scale: withRepeat(
-                    withSequence(
-                        withTiming(1.03, {
-                            duration: Duration.ambientBreathing / 2,
-                            easing: Easing.inOut(Easing.ease),
-                        }),
-                        withTiming(1.0, {
-                            duration: Duration.ambientBreathing / 2,
-                            easing: Easing.inOut(Easing.ease),
-                        })
-                    ),
-                    -1, // Infinite repeat
-                    false
-                ),
-            },
-        ],
+        transform: [{ scale: scale.value }],
     }));
 
     return (
