@@ -1,7 +1,7 @@
 // Welcome Screen - Main onboarding entry point
-import { View, Text, StyleSheet, Linking, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Animated, {
     FadeIn,
     FadeInUp,
@@ -10,19 +10,55 @@ import Animated, {
     useAnimatedStyle,
     useSharedValue,
     withDelay,
+    withRepeat,
     withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Character } from '@/components/welcome/character';
-import { FloatingIcons } from '@/components/welcome/floating-icons';
 import { PhoneFrame } from '@/components/welcome/phone-frame';
 import { Colors } from '@/constants/colors';
 import { Typography } from '@/constants/typography';
 import { Spacing } from '@/constants/spacing';
+import { StaggerDelay } from '@/constants/animations';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+import CloudRain from '@/assets/images/cloud-rain.svg';
+import Moon from '@/assets/images/moon.svg';
+import Flower from '@/assets/images/flower.svg';
+import Rainbow from '@/assets/images/rainbow.svg';
+import Note from '@/assets/images/note.svg';
+import FastForward from '@/assets/images/fast-forward.svg';
+import PlaySparkle from '@/assets/images/play-sparkle.svg';
+import Sparkle from '@/assets/images/sparkle.svg';
+
+const AnimatedCloudRain = Animated.createAnimatedComponent(CloudRain);
+const AnimatedMoon = Animated.createAnimatedComponent(Moon);
+const AnimatedFlower = Animated.createAnimatedComponent(Flower);
+const AnimatedRainbow = Animated.createAnimatedComponent(Rainbow);
+const AnimatedNote = Animated.createAnimatedComponent(Note);
+const AnimatedFastForward = Animated.createAnimatedComponent(FastForward);
+const AnimatedPlaySparkle = Animated.createAnimatedComponent(PlaySparkle);
+const AnimatedSparkle = Animated.createAnimatedComponent(Sparkle);
+
+const HERO_WIDTH = Spacing.phoneFrameWidth + 170;
+const HERO_HEIGHT = Spacing.phoneFrameHeight + 160;
+const FRAME_OFFSET_Y = -36;
+const FRAME_LEFT = (HERO_WIDTH - Spacing.phoneFrameWidth) / 2;
+const FRAME_TOP = (HERO_HEIGHT - Spacing.phoneFrameHeight) / 2 + FRAME_OFFSET_Y;
+const FRAME_RIGHT = FRAME_LEFT + Spacing.phoneFrameWidth;
+const ICON_GAP = 6;
+const ICON_SIZES = {
+    sparkle: 24,
+    flower: 46,
+    cloud: 72,
+    moon: 52,
+    fastForward: 40,
+    playSparkle: 54,
+    rainbow: 86,
+    sparkleSmall: 22,
+    note: 46,
+} as const;
 
 // Animation timing - Orange bg + illustration visible first, then white card slides up
 const ANIMATION_DELAYS = {
@@ -40,6 +76,58 @@ const ANIMATION_DELAYS = {
     checkbox: 1200,
     primaryButton: 1300,
     secondaryButton: 1400,
+};
+
+type FloatingSvgConfig = {
+    floatDuration: number;
+    rotateDuration?: number;
+    scale?: number;
+    floatDistance?: number;
+};
+
+const useFloatingSvgStyle = ({
+    floatDuration,
+    rotateDuration = 0,
+    scale = 1,
+    floatDistance = 10,
+}: FloatingSvgConfig) => {
+    const translateY = useSharedValue(0);
+    const rotate = useSharedValue(0);
+
+    useEffect(() => {
+        translateY.value = withRepeat(
+            withTiming(-floatDistance, {
+                duration: floatDuration / 2,
+                easing: Easing.inOut(Easing.ease),
+            }),
+            -1,
+            true
+        );
+
+        if (rotateDuration > 0) {
+            rotate.value = withRepeat(
+                withTiming(1, {
+                    duration: rotateDuration / 2,
+                    easing: Easing.inOut(Easing.ease),
+                }),
+                -1,
+                true
+            );
+        } else {
+            rotate.value = 0;
+        }
+    }, [floatDistance, floatDuration, rotateDuration, rotate, translateY]);
+
+    return useAnimatedStyle(
+        () => ({
+            transform: [
+                { translateY: translateY.value },
+                { rotate: rotateDuration > 0 ? `${rotate.value * 8}deg` : '0deg' },
+                { scale },
+            ],
+        }),
+        [rotateDuration, scale]
+    );
 };
 
 export default function WelcomeScreen() {
@@ -64,21 +152,142 @@ export default function WelcomeScreen() {
         Linking.openURL('https://example.com/privacy');
     };
 
+    const sparkleTopLeftStyle = useFloatingSvgStyle({ floatDuration: 4200, scale: 1 });
+    const flowerStyle = useFloatingSvgStyle({ floatDuration: 4600, rotateDuration: 5200, scale: 1 });
+    const cloudStyle = useFloatingSvgStyle({ floatDuration: 5200, scale: 1 });
+    const moonStyle = useFloatingSvgStyle({ floatDuration: 5600, scale: 1 });
+    const fastForwardStyle = useFloatingSvgStyle({ floatDuration: 4200, rotateDuration: 5200, scale: 1 });
+    const playSparkleStyle = useFloatingSvgStyle({ floatDuration: 5600, scale: 1 });
+    const rainbowStyle = useFloatingSvgStyle({ floatDuration: 4800, scale: 1 });
+    const sparkleMidRightStyle = useFloatingSvgStyle({ floatDuration: 4200, scale: 1 });
+    const noteStyle = useFloatingSvgStyle({ floatDuration: 6000, rotateDuration: 5200, scale: 1 });
+
+    const iconEnter = (index: number) =>
+        FadeIn.delay(ANIMATION_DELAYS.floatingIcons + index * StaggerDelay.floatingIcon).duration(400);
+
+    const characterSlideX = useSharedValue(-60);
+    useEffect(() => {
+        characterSlideX.value = withDelay(
+            ANIMATION_DELAYS.character,
+            withTiming(0, { duration: 550, easing: Easing.out(Easing.cubic) })
+        );
+    }, [characterSlideX]);
+
+    const characterSlideStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: characterSlideX.value }, { rotate: '30deg' }],
+    }));
+
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             {/* Yellow/Orange Hero Section - Visible immediately */}
             <View style={styles.heroSection}>
-                {/* Floating icons animate in */}
-                <FloatingIcons />
+                <View style={styles.heroIllustration}>
+                    {/* Floating icons - Positioned relative to phone frame */}
+                    <View style={styles.iconsLayer} pointerEvents="none">
+                        {/* Top Left Area */}
+                        <Animated.View
+                            entering={iconEnter(0)}
+                            style={[
+                                styles.icon,
+                                { top: FRAME_TOP - 8, left: FRAME_LEFT - ICON_GAP - ICON_SIZES.sparkle },
+                            ]}
+                        >
+                            <AnimatedSparkle width={ICON_SIZES.sparkle} height={ICON_SIZES.sparkle} style={sparkleTopLeftStyle} />
+                        </Animated.View>
+                        <Animated.View
+                            entering={iconEnter(1)}
+                            style={[
+                                styles.icon,
+                                { top: FRAME_TOP + 6, left: FRAME_LEFT - ICON_GAP - ICON_SIZES.flower },
+                            ]}
+                        >
+                            <AnimatedFlower width={ICON_SIZES.flower} height={ICON_SIZES.flower} style={flowerStyle} />
+                        </Animated.View>
 
-                {/* Phone frame with character */}
-                <PhoneFrame>
-                    <Animated.View
-                        entering={FadeIn.delay(ANIMATION_DELAYS.character).duration(500)}
-                    >
-                        <Character size={120} />
-                    </Animated.View>
-                </PhoneFrame>
+                        {/* Left Center Area */}
+                        <Animated.View
+                            entering={iconEnter(2)}
+                            style={[
+                                styles.icon,
+                                { top: FRAME_TOP + 78, left: FRAME_LEFT - ICON_GAP - ICON_SIZES.cloud },
+                            ]}
+                        >
+                            <AnimatedCloudRain width={ICON_SIZES.cloud} height={54} style={cloudStyle} />
+                        </Animated.View>
+
+                        {/* Bottom Left Area */}
+                        <Animated.View
+                            entering={iconEnter(3)}
+                            style={[
+                                styles.icon,
+                                { top: FRAME_TOP + 150, left: FRAME_LEFT - ICON_GAP - ICON_SIZES.moon },
+                            ]}
+                        >
+                            <AnimatedMoon width={ICON_SIZES.moon} height={ICON_SIZES.moon} style={moonStyle} />
+                        </Animated.View>
+                        <Animated.View
+                            entering={iconEnter(4)}
+                            style={[
+                                styles.icon,
+                                { top: FRAME_TOP + 198, left: FRAME_LEFT - ICON_GAP - ICON_SIZES.fastForward },
+                            ]}
+                        >
+                            <AnimatedFastForward width={ICON_SIZES.fastForward} height={ICON_SIZES.fastForward} style={fastForwardStyle} />
+                        </Animated.View>
+
+                        {/* Top Right Area */}
+                        <Animated.View
+                            entering={iconEnter(5)}
+                            style={[
+                                styles.icon,
+                                { top: FRAME_TOP + 6, left: FRAME_RIGHT + ICON_GAP },
+                            ]}
+                        >
+                            <AnimatedPlaySparkle width={ICON_SIZES.playSparkle} height={ICON_SIZES.playSparkle} style={playSparkleStyle} />
+                        </Animated.View>
+
+                        {/* Right Center Area */}
+                        <Animated.View
+                            entering={iconEnter(6)}
+                            style={[
+                                styles.icon,
+                                { top: FRAME_TOP + 72, left: FRAME_RIGHT + ICON_GAP },
+                            ]}
+                        >
+                            <AnimatedRainbow width={ICON_SIZES.rainbow} height={ICON_SIZES.rainbow} style={rainbowStyle} />
+                        </Animated.View>
+
+                        {/* Bottom Right Area */}
+                        <Animated.View
+                            entering={iconEnter(7)}
+                            style={[
+                                styles.icon,
+                                { top: FRAME_TOP + 132, left: FRAME_RIGHT + ICON_GAP },
+                            ]}
+                        >
+                            <AnimatedSparkle width={ICON_SIZES.sparkleSmall} height={ICON_SIZES.sparkleSmall} style={sparkleMidRightStyle} />
+                        </Animated.View>
+                        <Animated.View
+                            entering={iconEnter(8)}
+                            style={[
+                                styles.icon,
+                                { top: FRAME_TOP + 186, left: FRAME_RIGHT + ICON_GAP },
+                            ]}
+                        >
+                            <AnimatedNote width={ICON_SIZES.note} height={ICON_SIZES.note} style={noteStyle} />
+                        </Animated.View>
+                    </View>
+
+                    {/* Phone frame with character */}
+                    <PhoneFrame style={styles.phoneFrame}>
+                        <Animated.View
+                            entering={FadeIn.delay(ANIMATION_DELAYS.character).duration(250)}
+                            style={[styles.characterWrap, characterSlideStyle]}
+                        >
+                            <Character size={150} />
+                        </Animated.View>
+                    </PhoneFrame>
+                </View>
             </View>
 
             {/* Curved White Card - Position absolute, visual layer only */}
@@ -183,6 +392,30 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1,
+        // Remove padding to allow icons to flow to edges if needed
+    },
+    heroIllustration: {
+        width: HERO_WIDTH,
+        height: HERO_HEIGHT,
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+    },
+    iconsLayer: {
+        ...StyleSheet.absoluteFillObject,
+        zIndex: 0,
+    },
+    icon: {
+        position: 'absolute',
+    },
+    phoneFrame: {
+        zIndex: 2,
+        transform: [{ translateY: FRAME_OFFSET_Y }],
+    },
+    characterWrap: {
+        position: 'absolute',
+        left: -26,
+        top: 36,
     },
     curvedCard: {
         // This is a HUGE circle positioned absolute - visual layer only

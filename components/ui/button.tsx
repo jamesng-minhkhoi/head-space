@@ -1,9 +1,11 @@
-// Primary and Secondary Button Components
 import { Pressable, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
 import Animated, {
     useAnimatedStyle,
     withSpring,
     useSharedValue,
+    withTiming,
+    interpolate,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
@@ -31,9 +33,15 @@ export function Button({
     loading = false,
 }: ButtonProps) {
     const scale = useSharedValue(1);
+    const disabledAnim = useSharedValue(disabled || loading ? 1 : 0);
+
+    useEffect(() => {
+        disabledAnim.value = withTiming(disabled || loading ? 1 : 0, { duration: 300 });
+    }, [disabled, loading]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ scale: scale.value }],
+        opacity: interpolate(disabledAnim.value, [0, 1], [1, Colors.disabled]),
     }));
 
     const handlePressIn = () => {
@@ -62,7 +70,6 @@ export function Button({
             style={[
                 styles.button,
                 isPrimary ? styles.primaryButton : styles.secondaryButton,
-                (disabled || loading) && styles.disabled,
                 animatedStyle,
             ]}
         >
@@ -96,9 +103,6 @@ const styles = StyleSheet.create({
     },
     secondaryButton: {
         backgroundColor: Colors.grayLight,
-    },
-    disabled: {
-        opacity: Colors.disabled,
     },
     text: {
         ...Typography.buttonPrimary,

@@ -48,10 +48,10 @@ export const Spacing = {
     // Character
     characterSize: 100,
 
-    // Phone Frame
-    phoneFrameWidth: 240,
-    phoneFrameHeight: 420,
-    phoneFrameBorderRadius: 32,
+    // Phone Frame - Smaller to match design reference
+    phoneFrameWidth: 130,
+    phoneFrameHeight: 238,
+    phoneFrameBorderRadius: 18,
 } as const;
 
 export type SpacingKey = keyof typeof Spacing;

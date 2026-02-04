@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/colors';
 import { PaywallIntroDelays } from '@/constants/animations';
 
+import SmileyFace from '@/assets/images/smilie-face.svg';
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface SunsetHeaderProps {
@@ -17,17 +19,7 @@ interface SunsetHeaderProps {
 function SunCharacter() {
     return (
         <View style={styles.sunContainer}>
-            {/* Main sun circle */}
-            <View style={styles.sun}>
-                {/* Sparkle decorations */}
-                <View style={styles.sparkle} />
-
-                {/* Closed eyes (curved lines) */}
-                <View style={styles.sunFace}>
-                    <View style={styles.sunEyeCurved} />
-                    <View style={styles.sunEyeCurved} />
-                </View>
-            </View>
+            <SmileyFace width={100} height={100} />
         </View>
     );
 }
@@ -141,41 +133,7 @@ const styles = StyleSheet.create({
     sunContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    sun: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: Colors.orangeCharacter,
-        alignItems: 'center',
-        justifyContent: 'center',
-        // Subtle shadow
+        // Optional shadow
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-    },
-    sparkle: {
-        position: 'absolute',
-        top: 15,
-        right: 20,
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: '#FFE4B5',
-    },
-    sunFace: {
-        flexDirection: 'row',
-        gap: 20,
-        marginTop: 5,
-    },
-    sunEyeCurved: {
-        width: 20,
-        height: 10,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        backgroundColor: 'transparent',
-        borderTopWidth: 3,
-        borderLeftWidth: 3,
-        borderRightWidth: 3,
-        borderColor: Colors.textPrimary,
-        transform: [{ rotate: '180deg' }],
     },
 });

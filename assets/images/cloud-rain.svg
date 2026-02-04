@@ -1,0 +1,12 @@
+<svg width="200" height="150" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="150" fill="none"/>
+  
+  <path d="M30 90 Q30 65 55 65 Q60 30 95 35 Q135 30 145 65 Q165 70 165 95 Z" fill="#4285F4" />
+  <path d="M85 38 Q115 35 135 60 L85 90 Z" fill="#3267D2" opacity="0.4" />
+
+  <path d="M85 90 Q85 70 110 65 Q130 45 155 60 Q185 60 185 90 Z" fill="#FFFFFF" />
+  
+  <rect x="110" y="90" width="8" height="35" rx="4" fill="#FFF2CC" />
+  <rect x="130" y="90" width="8" height="50" rx="4" fill="#FFF2CC" />
+  <rect x="155" y="90" width="8" height="25" rx="4" fill="#FFF2CC" />
+</svg>

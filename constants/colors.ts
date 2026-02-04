@@ -2,18 +2,18 @@
 
 export const Colors = {
     // Welcome Screen Background
-    yellowBackground: '#FFAA00',
+    yellowBackground: '#FFCE00', // Yellow 500
 
     // Paywall Screen - Sunset Gradient
-    sunsetTop: '#B8D4A8',
-    sunsetYellow: '#FFD966',
-    sunsetOrange: '#FFB347',
-    sunsetDeep: '#FF8C42',
+    sunsetTop: '#FFCE00',    // Yellow 500
+    sunsetYellow: '#FFCE00', // Yellow 500
+    sunsetOrange: '#FF7E1D', // Orange 500
+    sunsetDeep: '#E1894B',   // Orange 700
 
     // UI Colors
-    bluePrimary: '#2563EB',
-    bluePressed: '#1D4ED8',
-    blueLink: '#3B82F6',
+    bluePrimary: '#0C6FF9',  // Blue 500
+    bluePressed: '#0850FD',  // Blue Dark 500
+    blueLink: '#0C6FF9',     // Blue 500
 
     // Backgrounds
     white: '#FFFFFF',
@@ -26,13 +26,13 @@ export const Colors = {
     textSecondary: '#6B7280',
 
     // Character
-    orangeCharacter: '#FF8C42',
-    orangeCharacterDark: '#FF6B35',
+    orangeCharacter: '#FF7E1D', // Orange 500
+    orangeCharacterDark: '#E1894B', // Orange 700
 
     // Timeline Icons
-    timelineBlue: '#3B82F6',
-    timelineOrange: '#F97316',
-    timelineYellow: '#FBBF24',
+    timelineBlue: '#0C6FF9',   // Blue 500
+    timelineOrange: '#FF7E1D', // Orange 500
+    timelineYellow: '#FFCE00', // Yellow 500
     timelineLine: '#D1FAE5',
 
     // Toggle

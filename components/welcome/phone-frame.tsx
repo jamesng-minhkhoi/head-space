@@ -1,25 +1,26 @@
 // Phone Frame Component - Device mockup container
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import Animated, { FadeIn, Easing } from 'react-native-reanimated';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/spacing';
-import { WelcomeIntroDelays } from '@/constants/animations';
 
 interface PhoneFrameProps {
     children: React.ReactNode;
+    style?: StyleProp<ViewStyle>;
 }
 
-export function PhoneFrame({ children }: PhoneFrameProps) {
+export function PhoneFrame({ children, style }: PhoneFrameProps) {
     return (
         <Animated.View
             entering={FadeIn.duration(600).easing(Easing.out(Easing.ease))}
-            style={styles.container}
+            style={[styles.container, style]}
         >
             {/* Device frame */}
             <View style={styles.frame}>
                 {/* Status bar area */}
                 <View style={styles.statusBar}>
-                    <View style={styles.notch} />
+                    <View style={styles.speaker} />
+                    <View style={styles.camera} />
                 </View>
 
                 {/* Screen content */}
@@ -33,38 +34,46 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
 
 const styles = StyleSheet.create({
     container: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        transform: [{ scale: 0.95 }], // Slightly scaled for visual appeal
-    },
-    frame: {
         width: Spacing.phoneFrameWidth,
         height: Spacing.phoneFrameHeight,
+        alignItems: 'center',
+        justifyContent: 'center',
+        // Removed scale transform to ensure 1:1 absolute sizing
+    },
+    frame: {
+        width: '100%',
+        height: '100%',
         backgroundColor: Colors.white,
         borderRadius: Spacing.phoneFrameBorderRadius,
         borderCurve: 'continuous',
         overflow: 'hidden',
-        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
-        borderWidth: 2,
+        borderWidth: 1.5,
         borderColor: 'rgba(0, 0, 0, 0.08)',
     },
     statusBar: {
-        height: 44,
+        height: 32,
         alignItems: 'center',
-        justifyContent: 'flex-start',
-        paddingTop: 12,
+        justifyContent: 'center',
+        flexDirection: 'row',
+        gap: 6,
     },
-    notch: {
-        width: 80,
-        height: 24,
-        backgroundColor: Colors.textPrimary,
-        borderRadius: 12,
-        borderCurve: 'continuous',
+    speaker: {
+        width: 42,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: 'rgba(0, 0, 0, 0.18)',
+    },
+    camera: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: 'rgba(0, 0, 0, 0.25)',
     },
     screen: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
+        justifyContent: 'flex-start',
+        paddingHorizontal: 12,
+        overflow: 'hidden',
     },
 });
