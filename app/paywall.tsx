@@ -15,7 +15,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/button';
-import { Toggle, type BillingCycle } from '@/components/ui/toggle';
+import { Toggle } from '@/components/ui/toggle';
 import { SunsetHeader } from '@/components/paywall/sunset-header';
 import { Timeline } from '@/components/paywall/timeline';
 import { Colors } from '@/constants/colors';
@@ -24,6 +24,13 @@ import { Spacing } from '@/constants/spacing';
 import { PaywallIntroDelays, Duration, CalmEasing } from '@/constants/animations';
 
 // Pricing configuration
+type BillingCycle = 'annual' | 'monthly';
+
+const billingOptions = [
+    { label: 'Annual', value: 'annual' },
+    { label: 'Monthly', value: 'monthly' },
+] as const;
+
 const pricing = {
     annual: { total: '$69.99', perMonth: '$5.83/month', period: 'year' },
     monthly: { total: '$12.99', perMonth: '$12.99/month', period: 'month' },
@@ -119,7 +126,11 @@ export default function PaywallScreen() {
                     entering={FadeIn.delay(PaywallIntroDelays.toggle).duration(300)}
                     style={styles.toggleContainer}
                 >
-                    <Toggle value={billingCycle} onChange={setBillingCycle} />
+                    <Toggle
+                        options={billingOptions}
+                        value={billingCycle}
+                        onChange={setBillingCycle}
+                    />
                 </Animated.View>
 
                 {/* Timeline */}

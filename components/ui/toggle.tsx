@@ -1,6 +1,6 @@
-// Billing Toggle Component (Annual/Monthly) with Animated Indicator
+// Generic Toggle Component with Animated Indicator
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -12,79 +12,86 @@ import { Typography } from '@/constants/typography';
 import { Spacing } from '@/constants/spacing';
 import { CALM_SPRING } from '@/constants/animations';
 
-export type BillingCycle = 'annual' | 'monthly';
+export type ToggleOption<T extends string | number> = {
+    label: string;
+    value: T;
+};
 
-interface ToggleProps {
-    value: BillingCycle;
-    onChange: (value: BillingCycle) => void;
+interface ToggleProps<T extends string | number> {
+    options: ToggleOption<T>[];
+    value: T;
+    onChange: (value: T) => void;
 }
 
-export function Toggle({ value, onChange }: ToggleProps) {
-    const [segmentWidth, setSegmentWidth] = useState(0);
+const SEGMENT_WIDTH = 100;
+
+export function Toggle<T extends string | number>({ options, value, onChange }: ToggleProps<T>) {
+    const activeIndex = Math.max(
+        0,
+        options.findIndex((option) => option.value === value)
+    );
     const translateX = useSharedValue(0);
 
     useEffect(() => {
-        if (segmentWidth > 0) {
-            translateX.value = withSpring(
-                value === 'annual' ? 0 : segmentWidth,
-                CALM_SPRING
-            );
+        if (options.length === 0) {
+            return;
         }
-    }, [value, segmentWidth]);
+
+        translateX.value = withSpring(
+            activeIndex * SEGMENT_WIDTH,
+            CALM_SPRING
+        );
+    }, [activeIndex, options.length, translateX]);
 
     const indicatorStyle = useAnimatedStyle(() => ({
         transform: [{ translateX: translateX.value }],
-        width: segmentWidth,
+        width: SEGMENT_WIDTH,
     }));
 
-    const handlePress = (newValue: BillingCycle) => {
+    const handlePress = (newValue: T) => {
         if (newValue !== value) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             onChange(newValue);
         }
     };
 
+    if (options.length === 0) {
+        return null;
+    }
+
     return (
-        <View style={styles.container}>
+        <View
+            style={[
+                styles.container,
+                { width: SEGMENT_WIDTH * options.length + Spacing.togglePadding * 2 },
+            ]}
+        >
             {/* Sliding indicator */}
             <Animated.View style={[styles.indicator, indicatorStyle]} />
 
-            {/* Annual segment */}
-            <Pressable
-                onLayout={(e) => setSegmentWidth(e.nativeEvent.layout.width)}
-                onPress={() => handlePress('annual')}
-                style={({ pressed }) => [
-                    styles.segment,
-                    pressed && value !== 'annual' && styles.segmentPressed,
-                ]}
-            >
-                <Text
-                    style={[
-                        styles.segmentText,
-                        value === 'annual' ? styles.activeText : styles.inactiveText,
-                    ]}
-                >
-                    Annual
-                </Text>
-            </Pressable>
+            {options.map((option) => {
+                const isActive = option.value === value;
 
-            {/* Monthly segment */}
-            <Pressable
-                onPress={() => handlePress('monthly')}
-                style={({ pressed }) => [
-                    styles.segment,
-                    pressed && value !== 'monthly' && styles.segmentPressed,
-                ]}
-            >
-                <Text
-                    style={[
-                        styles.segmentText,
-                        value === 'monthly' ? styles.activeText : styles.inactiveText,
-                    ]}
-                >
-                    Monthly
-                </Text>
-            </Pressable>
+                return (
+                    <Pressable
+                        key={`${option.value}`}
+                        onPress={() => handlePress(option.value)}
+                        style={({ pressed }) => [
+                            styles.segment,
+                            pressed && !isActive && styles.segmentPressed,
+                        ]}
+                    >
+                        <Text
+                            style={[
+                                styles.segmentText,
+                                isActive ? styles.activeText : styles.inactiveText,
+                            ]}
+                        >
+                            {option.label}
+                        </Text>
+                    </Pressable>
+                );
+            })}
         </View>
     );
 }
@@ -108,7 +115,7 @@ const styles = StyleSheet.create({
         borderCurve: 'continuous',
     },
     segment: {
-        width: 100, // Fixed width for consistent pill shape
+        width: SEGMENT_WIDTH, // Fixed width for consistent pill shape
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1,
